@@ -1,0 +1,95 @@
+// ====== ПИНЫ МОТОРОВ ======
+int motor1P1 = 27;  // Левый
+int motor1P2 = 26;
+int enable1  = 14;
+
+int motor2P1 = 25;  // Правый
+int motor2P2 = 33;
+int enable2  = 32;
+
+// ====== ПИНЫ ДАТЧИКОВ ======
+int motor1IR = 18; 
+int motor2IR = 19; 
+
+// ====== PWM ======
+const int freq = 30000;
+const int resolution = 8;
+
+// ====== СКОРОСТЬ ======
+int BASE_SPEED   = 163;  // 🔽 чуть меньше
+int TURN_INNER   = -163;  // 🔥 внутреннее колесо назад
+int TURN_OUTER   = 175;  // 🔥 внешнее быстрее
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(motor1P1, OUTPUT);
+  pinMode(motor1P2, OUTPUT);
+  pinMode(motor2P1, OUTPUT);
+  pinMode(motor2P2, OUTPUT);
+
+  pinMode(motor1IR, INPUT);
+  pinMode(motor2IR, INPUT);
+
+  ledcAttach(enable1, freq, resolution);
+  ledcAttach(enable2, freq, resolution);
+}
+
+void loop() {
+
+  int leftIR  = digitalRead(motor1IR);
+  int rightIR = digitalRead(motor2IR);
+
+  if (leftIR == LOW && rightIR == LOW) {
+    // прямо
+    setMotor(BASE_SPEED, BASE_SPEED);
+  } 
+  else if (leftIR == HIGH && rightIR == LOW) {
+    // 🔥 резкий поворот влево
+    setMotor(TURN_INNER, TURN_OUTER);
+  } 
+  else if (leftIR == LOW && rightIR == HIGH) {
+    // 🔥 резкий поворот вправо
+    setMotor(TURN_OUTER, TURN_INNER);
+  } 
+  else {
+    // оба на черном
+    setMotor(BASE_SPEED, BASE_SPEED);
+  }
+
+  Serial.print("L:"); Serial.print(leftIR);
+  Serial.print(" R:"); Serial.println(rightIR);
+
+  delay(5); // быстрее реакция
+}
+
+
+// ====== УНИВЕРСАЛЬНОЕ УПРАВЛЕНИЕ ======
+void setMotor(int speedL, int speedR) {
+
+  // ЛЕВЫЙ
+  if (speedL >= 0) {
+    digitalWrite(motor1P1, LOW);
+    digitalWrite(motor1P2, HIGH);
+  } else {
+    digitalWrite(motor1P1, HIGH);
+    digitalWrite(motor1P2, LOW);
+    speedL = -speedL;
+  }
+
+  // ПРАВЫЙ
+  if (speedR >= 0) {
+    digitalWrite(motor2P1, LOW);
+    digitalWrite(motor2P2, HIGH);
+  } else {
+    digitalWrite(motor2P1, HIGH);
+    digitalWrite(motor2P2, LOW);
+    speedR = -speedR;
+  }
+
+  speedL = constrain(speedL, 0, 255);
+  speedR = constrain(speedR, 0, 255);
+
+  ledcWrite(enable1, speedL);
+  ledcWrite(enable2, speedR);
+}
