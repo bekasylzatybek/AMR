@@ -37,7 +37,6 @@ void loop() {
   int rightIR = digitalRead(motor2IR);
 
   if (leftIR == LOW && rightIR == LOW) {
-    // прямо
     setMotor(BASE_SPEED, BASE_SPEED);
   } 
   else if (leftIR == HIGH && rightIR == LOW) {
