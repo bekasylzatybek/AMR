@@ -1,24 +1,20 @@
-// ====== ПИНЫ МОТОРОВ ======
-int motor1P1 = 27;  // Левый
+int motor1P1 = 27;
 int motor1P2 = 26;
 int enable1  = 14;
 
-int motor2P1 = 25;  // Правый
+int motor2P1 = 25;
 int motor2P2 = 33;
 int enable2  = 32;
 
-// ====== ПИНЫ ДАТЧИКОВ ======
 int motor1IR = 18; 
 int motor2IR = 19; 
 
-// ====== PWM ======
 const int freq = 30000;
 const int resolution = 8;
 
-// ====== СКОРОСТЬ ======
-int BASE_SPEED   = 163;  // 🔽 чуть меньше
-int TURN_INNER   = -163;  // 🔥 внутреннее колесо назад
-int TURN_OUTER   = 175;  // 🔥 внешнее быстрее
+int BASE_SPEED   = 163;
+int TURN_INNER   = -163;
+int TURN_OUTER   = 175; 
 
 void setup() {
   Serial.begin(115200);
@@ -45,29 +41,24 @@ void loop() {
     setMotor(BASE_SPEED, BASE_SPEED);
   } 
   else if (leftIR == HIGH && rightIR == LOW) {
-    // 🔥 резкий поворот влево
     setMotor(TURN_INNER, TURN_OUTER);
   } 
   else if (leftIR == LOW && rightIR == HIGH) {
-    // 🔥 резкий поворот вправо
     setMotor(TURN_OUTER, TURN_INNER);
   } 
   else {
-    // оба на черном
     setMotor(BASE_SPEED, BASE_SPEED);
   }
 
   Serial.print("L:"); Serial.print(leftIR);
   Serial.print(" R:"); Serial.println(rightIR);
 
-  delay(5); // быстрее реакция
+  delay(5); 
 }
 
 
-// ====== УНИВЕРСАЛЬНОЕ УПРАВЛЕНИЕ ======
 void setMotor(int speedL, int speedR) {
 
-  // ЛЕВЫЙ
   if (speedL >= 0) {
     digitalWrite(motor1P1, LOW);
     digitalWrite(motor1P2, HIGH);
@@ -77,7 +68,6 @@ void setMotor(int speedL, int speedR) {
     speedL = -speedL;
   }
 
-  // ПРАВЫЙ
   if (speedR >= 0) {
     digitalWrite(motor2P1, LOW);
     digitalWrite(motor2P2, HIGH);
